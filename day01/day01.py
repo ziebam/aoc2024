@@ -5,40 +5,40 @@ with open("day01/in01.txt") as in01:
 
 
 def part1(data):
-    l1 = []
-    l2 = []
+    left_list = []
+    right_list = []
 
     for line in data:
-        entries = line.split()
-        l1.append(int(entries[0]))
-        l2.append(int(entries[1]))
+        left, right = line.split()
+        left_list.append(int(left))
+        right_list.append(int(right))
 
-    l1.sort()
-    l2.sort()
+    left_list.sort()
+    right_list.sort()
 
     out = 0
-    for x, y in zip(l1, l2):
+    for x, y in zip(left_list, right_list):
         out += abs(x - y)
 
     return out
 
 
 def part2(data):
-    l1 = []
-    l2 = []
+    ids = []
+    multipliers = dict()
 
     for line in data:
-        entries = line.split()
-        l1.append(int(entries[0]))
-        l2.append(int(entries[1]))
+        left, right = line.split()
+        # Doing this manually is faster than list/tuple comprehensions or `map`.
+        left = int(left)
+        right = int(right)
+
+        ids.append(left)
+        multipliers[right] = multipliers.setdefault(right, 0) + 1
 
     out = 0
-    for entry in l1:
-        multiplier = 0
-        for m in l2:
-            if m == entry:
-                multiplier += 1
-        out += entry * multiplier
+    for id in ids:
+        out += id * multipliers.get(id, 0)
 
     return out
 
