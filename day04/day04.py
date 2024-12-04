@@ -86,16 +86,8 @@ def part1(data):
 def part2(data):
     out = 0
 
-    width = len(data[0])
-    height = len(data)
-    for y, row in enumerate(data):
-        if y == 0 or y == height - 1:
-            continue
-
-        for x, letter in enumerate(row):
-            if x == 0 or x == width - 1:
-                continue
-
+    for y, row in enumerate(data[1:-1], start=1):
+        for x, letter in enumerate(row[1:-1], start=1):
             if letter != "A":
                 continue
 
@@ -108,5 +100,5 @@ def part2(data):
     return out
 
 
-measure_performance("part 1", part1, data)
+# measure_performance("part 1", part1, data)
 measure_performance("part 2", part2, data)
