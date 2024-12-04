@@ -1,6 +1,8 @@
 # TODO: For part 1, rather than brute-forcing, get matrices rotated by -45, 45, and 90 degrees,
 # and do a simple substring search in them ("XMAS", "SAMX").
 
+import re
+
 from performance_utils.performance_utils import measure_performance
 
 with open("day04/in04.txt") as in04:
@@ -80,6 +82,24 @@ def part1(data):
                     and data[y + 3][x - 3] == "S"
                 ):
                     out += 1
+
+    return out
+
+
+def part1_regex(data):
+    w = len(data[0])
+
+    s = "\n".join(data)
+    regexes = (
+        ["(?=XMAS)", "(?=SAMX)"]
+        + [f"(?=X.{{{w + x}}}M.{{{w + x}}}A.{{{w + x}}}S)" for x in [-1, 0, 1]]
+        + [f"(?=S.{{{w + x}}}A.{{{w + x}}}M.{{{w + x}}}X)" for x in [-1, 0, 1]]
+    )
+
+    out = 0
+    for regex in regexes:
+        out += len(re.findall(regex, s, re.S))
+
     return out
 
 
@@ -100,5 +120,6 @@ def part2(data):
     return out
 
 
-# measure_performance("part 1", part1, data)
+measure_performance("part 1", part1, data)
+measure_performance("part 1 regex", part1_regex, data)
 measure_performance("part 2", part2, data)
