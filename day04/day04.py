@@ -120,6 +120,23 @@ def part2(data):
     return out
 
 
+def part2_regex(data):
+    w = len(data[0])
+
+    s = "\n".join(data)
+    regexes = [
+        f"(?={x[0]}[^\\n]{x[1]}.{{{w - 1}}}A.{{{w - 1}}}{x[2]}[^\\n]{x[3]})"
+        for x in ("MSMS", "MMSS", "SMSM", "SSMM")
+    ]
+
+    out = 0
+    for regex in regexes:
+        out += len(re.findall(regex, s, re.S))
+
+    return out
+
+
 measure_performance("part 1", part1, data)
 measure_performance("part 1 regex", part1_regex, data)
 measure_performance("part 2", part2, data)
+measure_performance("part 2 regex", part2_regex, data)
