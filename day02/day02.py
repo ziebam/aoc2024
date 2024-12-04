@@ -4,15 +4,15 @@ with open("day02/in02.txt") as in02:
     data = in02.readlines()
 
 
-def is_safe(report):
-    increasing = int(report[1]) - int(report[0]) > 0
+def is_safe(levels):
+    increasing = int(levels[1]) - int(levels[0]) > 0
 
     idx = 0
-    for level in report[:-1]:
-        subdifference = int(report[idx + 1]) - int(level)
-        if increasing and (subdifference <= 0 or subdifference > 3):
+    for level in levels[:-1]:
+        difference = int(levels[idx + 1]) - int(level)
+        if increasing and (difference <= 0 or difference > 3):
             return 0
-        elif not increasing and (subdifference >= 0 or subdifference < -3):
+        elif not increasing and (difference >= 0 or difference < -3):
             return 0
 
         idx += 1
@@ -23,8 +23,7 @@ def is_safe(report):
 def part1(data):
     out = 0
     for report in data:
-        report = report.split()
-        out += is_safe(report)
+        out += is_safe(report.split())
 
     return out
 
@@ -32,14 +31,13 @@ def part1(data):
 def part2(data):
     out = 0
     for report in data:
-        report = report.split()
-        safe = is_safe(report)
+        levels = report.split()
 
-        if safe:
+        if is_safe(levels):
             out += 1
         else:
-            for idx in range(len(report)):
-                if is_safe(report[:idx] + report[idx + 1 :]):
+            for idx in range(len(levels)):
+                if is_safe(levels[:idx] + levels[idx + 1 :]):
                     out += 1
                     break
 
