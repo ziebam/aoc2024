@@ -1,5 +1,3 @@
-# TODO: Improve this. The approach seems incorrect given how slow it is, and part 2 is a mess.
-
 from performance_utils.performance_utils import measure_performance
 
 with open("day09/in09.txt") as in09:
@@ -34,55 +32,36 @@ def part1(data):
 
 
 def part2(data):
-    disk = []
-    for idx, sector in enumerate(data):
-        if idx % 2 == 0:
-            for _ in range(int(sector)):
-                disk.append(idx // 2)
+    sectors = [int(sector) for sector in data]
+    n = len(sectors)
+
+    placed = set()
+    i = out = 0
+    for idx, sector in enumerate(sectors):
+        if idx % 2 == 0 and (id := idx // 2) not in placed:
+            for _ in range(sector):
+                out += id * i
+                i += 1
+            placed.add(id)
         else:
-            for _ in range(int(sector)):
-                disk.append(".")
+            for j in range(n - 1, idx, -2):
+                if sectors[j] <= sector and (id := j // 2) not in placed:
+                    for _ in range(sectors[j]):
+                        out += id * i
+                        i += 1
+                    placed.add(id)
 
-    orig_file_sizes = [int(size) for size in data[::2]]
-    file_sizes = orig_file_sizes[::]
-    empty_sizes = [int(size) for size in data[1::2]]
-    pointer = file_sizes[0]
-    for idx, empty_size in enumerate(empty_sizes):
-        # TODO: Don't reverse the list every iteration.
-        for jdx, file_size in enumerate(file_sizes[::-1]):
-            if len(file_sizes) - 1 - jdx <= idx:
-                pointer += empty_size
-                break
+                    sector -= sectors[j]
+                    if not sector:
+                        break
+            for _ in range(sector):
+                i += 1
 
-            if empty_size == 0:
-                break
-
-            if 0 < file_size <= empty_size:
-                try:
-                    # TODO: Find the first occurence and replace based on the block size.
-                    while file_to_move_idx := disk.index(len(file_sizes) - 1 - jdx):
-                        disk[file_to_move_idx] = "."
-                except ValueError:
-                    pass
-
-                for _ in range(file_size):
-                    disk[pointer] = len(file_sizes) - 1 - jdx
-                    pointer += 1
-                    empty_size -= 1
-                file_sizes[len(file_sizes) - 1 - jdx] = 0
-
-        pointer += orig_file_sizes[idx + 1]
-
-    out = 0
-    for idx, block in enumerate(disk):
-        if block == ".":
-            continue
-        out += idx * block
+        if len(placed) == (n // 2) + 1:
+            break
 
     return out
 
 
 measure_performance("part 1", part1, data)
-print(
-    f"Part 2 answer: \033[92m{part2(data)}\x1b[0m. Too slow for performance measurement.\n"
-)
+measure_performance("part 2", part2, data, warmup_runs=10, actual_runs=100)
