@@ -7,33 +7,28 @@ with open("day09/in09.txt") as in09:
 
 
 def part1(data):
-    n_sectors = len(data)
+    sectors = [int(sector) for sector in data]
 
-    pointer = n_sectors - 1 if n_sectors % 2 == 1 else n_sectors - 2
-    disk = []
-    sizes = [int(sector) for sector in data]
-    for idx, sector in enumerate(data):
+    # This would be needed in case the input wasn't always of an odd length.
+    # back_pointer = len(sectors) - 1 if len(sectors) % 2 == 1 else len(sectors) - 2
+    back_pointer = len(sectors) - 1
+    i = out = 0
+    for idx, sector in enumerate(sectors):
         if idx % 2 == 0:
-            for _ in range(sizes[idx]):
-                disk.append(idx // 2)
+            for _ in range(sectors[idx]):
+                out += (idx // 2) * i
+                i += 1
         else:
-            count = sizes[pointer]
-            for _ in range(int(sector)):
-                disk.append(pointer // 2)
-                count -= 1
-                sizes[pointer] -= 1
-                if count == 0:
-                    pointer -= 2
-                    if idx >= pointer:
-                        break
-                    count = sizes[pointer]
+            for _ in range(sector):
+                out += (back_pointer // 2) * i
+                i += 1
 
-        if idx >= pointer:
+                sectors[back_pointer] -= 1
+                if sectors[back_pointer] == 0:
+                    back_pointer -= 2
+
+        if idx >= back_pointer:
             break
-
-    out = 0
-    for idx, block in enumerate(disk):
-        out += idx * block
 
     return out
 
