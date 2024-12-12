@@ -32,23 +32,30 @@ def flood_fill(grid, plant, x, y, region):
 
 def get_fences(grid, plant, region):
     fences = set()
+    min_x = min_y = max_x = max_y = 0
 
-    for node in region:
-        x, y = node
-
+    for x, y in region:
         if x == width - 1 or grid[y][x + 1] != plant:
             fences.add((x + 1, y, "e"))
+            if x + 1 > max_x:
+                max_x = x + 1
 
         if y == height - 1 or grid[y + 1][x] != plant:
             fences.add((x, y + 1, "s"))
+            if y + 1 > max_y:
+                max_y = y + 1
 
-        if x == 0 or grid[y][x - 1] != plant:
+        if x == 0 or grid[y][(x - 1)] != plant:
             fences.add((x - 1, y, "w"))
+            if x - 1 < min_x:
+                min_x = x - 1
 
         if y == 0 or grid[y - 1][x] != plant:
             fences.add((x, y - 1, "n"))
+            if y - 1 < min_y:
+                min_y = y - 1
 
-    return fences
+    return fences, min_x, min_y, max_x, max_y
 
 
 def part1(data):
@@ -84,14 +91,14 @@ def part2(data):
             checked.update(region)
             area = len(region)
 
-            fences = get_fences(data, plant, region)
+            fences, min_x, min_y, max_x, max_y = get_fences(data, plant, region)
 
             unique_fences = 0
 
             n_flag = False
             s_flag = False
-            for yy in range(-1, height + 1):
-                for xx in range(-1, width + 1):
+            for yy in range(min_y, max_y + 1):
+                for xx in range(min_x, max_x + 1):
                     if (xx, yy, "n") in fences:
                         if not n_flag:
                             unique_fences += 1
@@ -108,8 +115,8 @@ def part2(data):
 
             w_flag = False
             e_flag = False
-            for xx in range(-1, width + 1):
-                for yy in range(-1, height + 1):
+            for xx in range(min_x, max_x + 1):
+                for yy in range(min_y, max_y + 1):
                     if (xx, yy, "w") in fences:
                         if not w_flag:
                             unique_fences += 1
@@ -132,6 +139,4 @@ def part2(data):
 # Probably off by a few microseconds since `width` and `height` are globals for convenience,
 # and therefore not calculated into the runtime, but I think it's negligible.
 measure_performance("part 1", part1, data)
-print(
-    f"Part 2 answer: \033[92m{part2(data)}\x1b[0m. Too slow for performance measurement.\n"
-)
+measure_performance("part 2", part2, data, warmup_runs=100, actual_runs=1000)
