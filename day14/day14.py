@@ -35,7 +35,20 @@ def part1(data):
     return i * ii * iii * iv
 
 
-def part2(data):
+def print_grid(grid):
+    print("┌" + "─" * len(grid[0]) * 2 + "┐")
+    for row in grid:
+        print("│", end="")
+        for c in row:
+            if c == "X":
+                print("\033[92m██\x1b[0m", end="")
+            else:
+                print("  ", end="")
+        print("│")
+    print("└" + "─" * len(grid[0]) * 2 + "┘")
+
+
+def part2(data, print_solution=False):
     width = 101
     height = 103
 
@@ -69,6 +82,9 @@ def part2(data):
                     and "".join(grid[j][idx : idx + len(christmas_tree_upper_border)])
                     == christmas_tree_upper_border
                 ):
+                    if print_solution:
+                        print_grid(grid)
+
                     return i
         i += 1
 
