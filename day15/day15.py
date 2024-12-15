@@ -1,3 +1,5 @@
+# TODO: Keep sets of walls/boxes positions rather than manipulating the whole grid.
+
 from performance_utils.performance_utils import measure_performance
 
 with open("day15/in15.txt") as in15:
