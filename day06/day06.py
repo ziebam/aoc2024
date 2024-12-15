@@ -3,6 +3,8 @@ from performance_utils.performance_utils import measure_performance
 with open("day06/in06.txt") as in06:
     data = [row.strip() for row in in06.readlines()]
 
+DIRECTION_TO_NEXT = {(0, -1): (1, 0), (1, 0): (0, 1), (0, 1): (-1, 0), (-1, 0): (0, -1)}
+
 
 def get_guard_starting_state(data):
     for y, row in enumerate(data):
@@ -34,15 +36,7 @@ def get_visited(data, gx, gy, direction, include_init=True):
             break
 
         if data[new_gy][new_gx] == "#":
-            match direction:
-                case (0, -1):
-                    direction = (1, 0)
-                case (1, 0):
-                    direction = (0, 1)
-                case (0, 1):
-                    direction = (-1, 0)
-                case (-1, 0):
-                    direction = (0, -1)
+            direction = DIRECTION_TO_NEXT[direction]
         else:
             gx, gy = new_gx, new_gy
             visited.add((new_gx, new_gy))
@@ -69,17 +63,16 @@ def part2(data):
         data, init_gx, init_gy, init_direction, include_init=False
     )
 
+    grid = [[node for node in row] for row in data]
+
     out = 0
     for position in positions_to_check:
         x, y = position
+        grid[y][x] = "#"
 
         gx, gy, direction = init_gx, init_gy, init_direction
-        visited_with_directions = set()
-        visited_with_directions.add((init_gx, init_gy, init_direction))
 
-        new_grid = data[::]
-        new_grid[y] = new_grid[y][:x] + "#" + new_grid[y][x + 1 :]
-
+        hit = set()
         while True:
             new_gx = gx + direction[0]
             new_gy = gy + direction[1]
@@ -87,25 +80,17 @@ def part2(data):
             if new_gx < 0 or new_gx > width - 1 or new_gy < 0 or new_gy > height - 1:
                 break
 
-            if new_grid[new_gy][new_gx] == "#":
-                match direction:
-                    case (0, -1):
-                        direction = (1, 0)
-                    case (1, 0):
-                        direction = (0, 1)
-                    case (0, 1):
-                        direction = (-1, 0)
-                    case (-1, 0):
-                        direction = (0, -1)
-            else:
-                gx, gy = new_gx, new_gy
-                prev = len(visited_with_directions)
-                visited_with_directions.add((new_gx, new_gy, direction))
-                next = len(visited_with_directions)
-                # Loop detection.
-                if next == prev:
+            if grid[new_gy][new_gx] == "#":
+                if (new_gx, new_gy, direction) in hit:
                     out += 1
                     break
+
+                hit.add((new_gx, new_gy, direction))
+                direction = DIRECTION_TO_NEXT[direction]
+            else:
+                gx, gy = new_gx, new_gy
+
+        grid[y][x] = "."
 
     return out
 
