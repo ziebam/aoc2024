@@ -6,8 +6,8 @@ with open("day12/in12.txt") as in12:
     data = [row.strip() for row in in12.readlines()]
 
 
-width = len(data[0])
-height = len(data)
+WIDTH = len(data[0])
+HEIGHT = len(data)
 
 
 # `region` is populated as a side effect. The returned value is said region's perimeter.
@@ -22,8 +22,8 @@ def flood_fill(grid, plant, x, y, region):
 
     perimeter = 0
 
-    perimeter += flood_fill(grid, plant, x + 1, y, region) if x < width - 1 else 1
-    perimeter += flood_fill(grid, plant, x, y + 1, region) if y < height - 1 else 1
+    perimeter += flood_fill(grid, plant, x + 1, y, region) if x < WIDTH - 1 else 1
+    perimeter += flood_fill(grid, plant, x, y + 1, region) if y < HEIGHT - 1 else 1
     perimeter += flood_fill(grid, plant, x - 1, y, region) if x > 0 else 1
     perimeter += flood_fill(grid, plant, x, y - 1, region) if y > 0 else 1
 
@@ -35,12 +35,12 @@ def get_fences(grid, plant, region):
     min_x = min_y = max_x = max_y = 0
 
     for x, y in region:
-        if x == width - 1 or grid[y][x + 1] != plant:
+        if x == WIDTH - 1 or grid[y][x + 1] != plant:
             fences.add((x + 1, y, "e"))
             if x + 1 > max_x:
                 max_x = x + 1
 
-        if y == height - 1 or grid[y + 1][x] != plant:
+        if y == HEIGHT - 1 or grid[y + 1][x] != plant:
             fences.add((x, y + 1, "s"))
             if y + 1 > max_y:
                 max_y = y + 1
