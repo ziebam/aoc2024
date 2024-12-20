@@ -1,4 +1,4 @@
-# NOTE: The code for part 2is heavily annotated as the solution for part 2 took me pretty much the
+# NOTE: The code for part 2 is heavily annotated as the solution for part 2 took me pretty much the
 # whole day to arrive at, and it's so neat that I'd like to be able to get back to it in the future,
 # and understand it at a glance.
 
