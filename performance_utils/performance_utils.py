@@ -10,7 +10,7 @@ def measure_performance(
         func(*args)
     warmup_end = timeit.default_timer()
     print(
-        f"Finished {warmup_runs} warmup runs for {name} in ~{(warmup_end - warmup_start):.2f} seconds."
+        f"Finished {warmup_runs} warmup run{'s' if warmup_runs > 1 else ''} for {name} in ~{(warmup_end - warmup_start):.2f} seconds."
     )
 
     starts = []
