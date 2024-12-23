@@ -1,3 +1,8 @@
+# TODO: Avoid hardcoding the values.
+
+from collections import defaultdict
+from math import inf
+
 from performance_utils.performance_utils import measure_performance
 
 with open("day21/in21.txt") as in21:
@@ -26,19 +31,18 @@ DIRECTIONAL_KEYPAD = {
 }
 
 
-def get_paths(current, target, keypad, gap, depth=0):
-    x1, y1 = keypad[current]
-    x2, y2 = keypad[target]
+def get_numeric_paths(current, target):
+    x1, y1 = NUMERIC_KEYPAD[current]
+    x2, y2 = NUMERIC_KEYPAD[target]
 
     horizontal = "<" if x2 < x1 else ">"
     vertical = "^" if y2 < y1 else "v"
 
     dx = abs(x1 - x2)
     dy = abs(y1 - y2)
-    d = dx + dy
 
+    paths = [vertical * dy + horizontal * dx, horizontal * dx + vertical * dy]
     valid_paths = []
-    paths = [horizontal * dx + vertical * dy, vertical * dy + horizontal * dx]
     for path in paths:
         new_x, new_y = x1, y1
         for move in path:
@@ -52,47 +56,107 @@ def get_paths(current, target, keypad, gap, depth=0):
                 case "v":
                     new_y += 1
 
-            if gap == (new_x, new_y):
+            if (0, 3) == (new_x, new_y):
                 break
         else:
-            valid_path = "".join(path + "A")
-            if valid_path not in valid_paths:
-                valid_paths.append(valid_path)
+            valid_paths.append(path + "A")
 
-    if depth == 2:
-        return valid_paths
+    return valid_paths
+
+
+# Some hardcoded best choices I've found empirically while bashing my head against this puzzle.
+BEST_PATHS = {("v", "A"): "^>A", ("^", "<"): "v<A", ("^", ">"): "v>A"}
+
+
+def get_best_directional_path(current, target):
+    if current == target:
+        return "A"
+
+    if (current, target) in BEST_PATHS:
+        return BEST_PATHS[(current, target)]
+
+    x1, y1 = DIRECTIONAL_KEYPAD[current]
+    x2, y2 = DIRECTIONAL_KEYPAD[target]
+
+    horizontal = "<" if x2 < x1 else ">"
+    vertical = "^" if y2 < y1 else "v"
+
+    dx = abs(x1 - x2)
+    dy = abs(y1 - y2)
+    d = dx + dy
+
+    if d == 2 or d == 4:
+        return horizontal * (d // 2) + vertical * (d // 2) + "A"
     else:
-        current = "A"
-        next_step = []
-        for s in valid_paths:
-            new_sequences = [""]
-            for d in s:
-                new_new_sequences = []
-                for s in new_sequences:
-                    for path in get_paths(
-                        current, d, DIRECTIONAL_KEYPAD, (0, 0), depth + 1
-                    ):
-                        new_new_sequences.append(s + path)
-                new_sequences = new_new_sequences[::]
-                current = d
-            next_step += new_sequences
+        paths = [vertical * dy + horizontal * dx, horizontal * dx + vertical * dy]
+        for path in paths:
+            new_x, new_y = x1, y1
+            for move in path:
+                match move:
+                    case "<":
+                        new_x -= 1
+                    case ">":
+                        new_x += 1
+                    case "^":
+                        new_y -= 1
+                    case "v":
+                        new_y += 1
 
-        return [min(next_step, key=len)]
+                # Gap in the directional keypad, cannot go there.
+                if (new_x, new_y) == (0, 0):
+                    break
+            else:
+                return path + "A"
 
 
-def part1(data):
+def both_parts(data, is_part_one):
+    n_directional_keypads = 2 if is_part_one else 25
+
     out = 0
-
-    current = "A"
     for code in data:
         complexity = 0
+        current = "A"
         for num in code:
-            paths = get_paths(current, num, NUMERIC_KEYPAD, (0, 3))
-            complexity += len(min(paths, key=len))
+            paths = get_numeric_paths(current, num)
+
+            scomplexity = inf
+            for path in paths:
+                subcomplexity = 0
+                steps_to_counts = defaultdict(lambda: 0)
+                curr = "A"
+                for step in path:
+                    steps_to_counts[(curr, step)] += 1
+                    curr = step
+
+                for _ in range(n_directional_keypads):
+                    new_steps_to_counts = defaultdict(lambda: 0)
+                    for step, count in steps_to_counts.items():
+                        if step == ("A", "A"):
+                            new_steps_to_counts[step] += count
+                            continue
+
+                        source, target = step
+                        path = get_best_directional_path(source, target)
+
+                        curr = "A"
+                        for s in path:
+                            new_steps_to_counts[(curr, s)] += count
+                            curr = s
+                    steps_to_counts = new_steps_to_counts
+
+                for count in steps_to_counts.values():
+                    subcomplexity += count
+
+                if subcomplexity < scomplexity:
+                    scomplexity = subcomplexity
+
             current = num
+            complexity += scomplexity
+
         out += complexity * int(code[:-1])
 
     return out
 
 
-measure_performance("part 1", part1, data)
+measure_performance("part 1", both_parts, data, True)
+measure_performance("part 2", both_parts, data, False)
